@@ -95,8 +95,10 @@ global.View =
     annotation: (bank, addr) -> "<span style=color:#{bank.annote[addr]?.color ? "inherit"};>#{bank.annote[addr]?.text ? ""}</span>"
     char: (bank, addr) -> "#{@showChar(bank.u16[addr*2 + 1]) ? ""}#{@showChar(bank.u16[addr*2]) ? "\\0"}"
 
-  memoryBankRow: (bank, addr, rows) ->
-    $row = $("<tr />")
+  memoryBankRow: (bank, addr, rows, reg_name) ->
+    console.log reg_name
+
+    $row = (if reg_name? then $("<tr id='reg_#{reg_name.toLowerCase()}' />") else $("<tr />"))
 
     for row in rows
       rowspan = 1
@@ -182,8 +184,10 @@ global.View =
 
     id = 0
     while id < cpu.regCount
-      $row = @memoryBankRow(cpu.reg, id, rows)
-      $row.prepend $("<td class='mem_addr'>#{cpu.regName(id) ? "R#{id}"}</td>")
+      reg_name = cpu.regName(id)
+
+      $row = @memoryBankRow(cpu.reg, id, rows, reg_name)
+      $row.prepend $("<td class='mem_addr'>#{reg_name ? "R#{id}"}</td>")
 
       $tbody.append($row)
 

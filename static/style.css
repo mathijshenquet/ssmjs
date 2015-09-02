@@ -11,14 +11,15 @@
   width: 40%;
   tab-size: 4;
 
-  overflow: scroll;
+  overflow-y: scroll;
+  overflow-x: auto;
 }
 
 #pc{
   position: absolute;
   top: -100px;
   left: 0;
-  background: red;
+  background: #669966;
   border-radius: 4px;
   width: 8px;
   height: 8px;
@@ -49,13 +50,13 @@
   top: 48px;
   right: 0;
   width: 60%;
-  bottom: 300px;
+  bottom: 250px;
 }
 
 #regs{
   position: absolute;
   bottom: 0;
-  height: 300px;
+  height: 250px;
   right: 0;
   width: 60%;
 }
@@ -159,6 +160,10 @@
   box-shadow: 0 6px 10px -8px gray;
 }
 
+#reg_pc{
+  border-left: 3px solid #669966;
+}
+
 #console-in, #console-out{
   position: absolute;
   bottom: 0;
@@ -201,7 +206,26 @@
   right: 0;
   height: 48px;
   border-bottom: 1px solid gray;
-  padding: 16px 24px;
+  padding: 8px 24px;
+}
+
+#title{
+  display: inline-block;
+}
+
+#title h1{
+  display: inline-block;
+  margin: 0;
+  font-size: 1.8em;
+  font-family: monospace;
+}
+
+#title h2{
+  display: inline-block;
+  margin: 0;
+  font-size: 12px;
+  font-weight: normal;
+  font-family: sans-serif;
 }
 
 .mem_addr{
