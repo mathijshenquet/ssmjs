@@ -8,8 +8,8 @@
 <div id="editor">
   <div id="pc"></div>
 	<pre id="src" autofocus contenteditable="plaintext-only">
-ldc 5 ; a
-ldc 12 ; b
+ldc 5 ; @a
+ldc 12 ; @b
 bsr sumsquare
 ajs -2 ; verwijder parameters
 lds 5 ; resultaat op de stack
@@ -30,32 +30,32 @@ sumsquare:
 
 next:
 
-ldc 1 ; {label: "a"}
-ldc 2 ; {label: "b"}
-ldc 3 ; {label: "c"}
-ldc 4 ; {label: "d"}
+ldc 1 ; @a
+ldc 2 ; @b
+ldc 3 ; @c
+ldc 4 ; @d
 
 bsr complex_multiply
 ldr RR
 ldr 5
 
 
-ldc -1 ; {label: "a"}
-ldc 1 ; {label: "b"}
+ldc -1 ; @a
+ldc 1 ; @b
 bsr complex_square
 
 ldr RR
 ldr 5
 
-ldc 3 ; {label: "a"}
-ldc 4 ; {label: "b"}
+ldc 3 ; @a
+ldc 4 ; @b
 bsr pyth
-ldr RR ; {label: "c"}
+ldr RR ; @c
 annote SP -2 0 blue "pythagoras a^2 + b^2 = c^2"
 
-ldc 11; {label: "root"}
+ldc 11; @root
 bsr sq
-ldr 4 ; {label: "square"}
+ldr 4 ; @square
 bsr sqrt
 ldr 4
 bra exit
@@ -109,12 +109,12 @@ complex_multiply:
   ret
 
 pyth:
-  lds -2 ; {label: "a"}
+  lds -2 ; @a
   bsr sq
   ajs -1
   ldr 4
 
-  lds -2 ; {label: "b"}
+  lds -2 ; @b
   bsr sq
   ajs -1
   ldr 4
@@ -126,9 +126,9 @@ pyth:
 
 sqrt:
   link 0
-  lds -2 ; {label: "root"} take the number to sqrt from the stack
-  ldc 16 ; {label: "i"} we will take a maximum of 16 itterations of newtons method
-  ldl 1 ; {label: "p"}
+  lds -2 ; @root take the number to sqrt from the stack
+  ldc 16 ; @i we will take a maximum of 16 itterations of newtons method
+  ldl 1 ; @p
 
 sqrt_loop:
   lds 0 ; take current trice
@@ -141,23 +141,23 @@ sqrt_loop:
   mul
   div
 
-  lds -1 ; {label: "p_old"}
-  lds -1 ; {label: "p_new"}
+  lds -1 ; @p_old
+  lds -1 ; @p_new
   eq
   brt sqrt_exit
-  sts -1 ; {label: "p"}
+  sts -1 ; @p
 
   ldl 2 ; Load iter count
   ldc 1 ; 1
   sub   ; decrement iter count
-  stl 2 ; {label: "i"} store iter count
+  stl 2 ; @i store iter count
   ajs 1 ;
   ldc 0
   eq
   brf sqrt_loop ; jump back if
 
 sqrt_exit:
-  str 4 ; {label: ""}
+  str 4 ; @
   unlink
   ret
 
@@ -168,7 +168,7 @@ sq:
   str 4
   ret
 
-ldc 12 ; {label: "n"}
+ldc 12 ; @n
 bsr factorial
 ldr RR
 halt
@@ -186,9 +186,9 @@ factorial_loop:
   brt factorial_exit
 
   lds 0
-  sts -3 ; {label: "n"}
+  sts -3 ; @n
 
-  mul ; {label: "f_n"}
+  mul ; @f_n
 
   bra factorial_loop
 

@@ -49,13 +49,13 @@
   top: 48px;
   right: 0;
   width: 60%;
-  bottom: 350px;
+  bottom: 300px;
 }
 
 #regs{
   position: absolute;
   bottom: 0;
-  height: 350px;
+  height: 300px;
   right: 0;
   width: 60%;
 }
