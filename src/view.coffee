@@ -28,7 +28,7 @@ String::divide = (len) ->
 
   out
 
-Number::showHex = ->    
+Number::showHex = ->
 
 Number::showBinary = -> (if this.valueOf() == 0 then "" else @toString(2)).padl("-", 32).divide(4).join(" ")
 
@@ -88,7 +88,7 @@ global.View =
       if row == "annotation"
         if bank.annote[addr]?.ignore
           continue
-        
+
         annotation = bank.annote[addr]?.text
 
         if annotation?
@@ -109,7 +109,7 @@ global.View =
 
     $thead = $("#mem .thead thead tr")
     $thead.empty()
-    
+
 
     $thead.append $("<th class='mem_addr'>address</th>")
     $thead.append $("<th class='mem_mp_offset'></th>")
@@ -121,8 +121,8 @@ global.View =
       $row = @memoryBankRow(cpu.mem, addr, rows)
 
       offset =  if mp != -1 && -8 < (addr - mp) < 8
-                  if addr == mp 
-                    "mp" 
+                  if addr == mp
+                    "mp"
                   else if addr < mp
                     addr - mp
                   else
@@ -159,7 +159,7 @@ global.View =
 
     $thead = $("#regs .thead thead tr")
     $thead.empty()
-    
+
     $thead.append $("<th class='mem_addr'>address</th>")
     for row in rows
       $thead.append $("<th class='mem_#{row}'>#{row}</th>")

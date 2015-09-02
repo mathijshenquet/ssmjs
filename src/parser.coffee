@@ -8,7 +8,7 @@ token = (regex, fn) ->
       return false;
     src = src.slice(res[0].length)
     [src, fn(res)]
-  
+
 matchLabel = token /^([a-zA-Z_\-]+):/, (match) -> match[1]
 matchOpcode = token /^[a-zA-Z]+/, (match) -> match[0]
 argMatchers = [
@@ -37,29 +37,29 @@ global.Parser = parse: (src) ->
   prevlength = 0
   while src.length != prevlength
     prevlength = src.length
-  
+
     if (res = matchLabel(src))
       src = res[0]
       line.label = res[1]
       line.opcode = "nop"
-    
+
     if match = src.match(/^[ \t]+/)
       src = src.slice(match[0].length)
-    
+
     if (res = matchOpcode(src))
       src = res[0]
       line.opcode = res[1]
       line.args = []
-      
+
       while src[0] != "\n"
         unless match = src.match(/^[ \t]+/)
           break
-  
+
         src = src.slice(match[0].length)
-        
+
         unless (res = matchArg(src))
           break
-          
+
         src = res[0]
         line.args.push res[1]
 
@@ -86,5 +86,5 @@ global.Parser = parse: (src) ->
       src = src.slice(1)
     else if src[0] != undefined
       throw new Error("Unexpected input #{src}")
-      
+
   return lines
