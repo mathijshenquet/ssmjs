@@ -9,25 +9,29 @@ hotswap = ->
   code = Parser.parse(View.getSrc())
   cpu.load(code)
 
-reset = -> cpu.reset()
-
-View.addButton "reset",   ->
-  cpu.reset();
+reset = ->
+  cpu.reset()
   View.update(cpu)
 
-View.addButton "step",   ->
-  hotswap()
+step = ->
+  console.log("step")
 
+  hotswap()
   cpu.step()
   View.update(cpu)
-  #View.print(cpu.mem.join("\n"))
 
-View.addButton "run",  ->
+run = ->
   hotswap()
-
   cpu.run()
   View.update(cpu)
-  #View.print(cpu.mem.join("\n"))
+
+View.addButton "reset", reset
+
+View.addButton "step", step
+
+View.addButton "run", run
+
+$(document).bind('keydown', 'ctrl+]', step);
 
 View.sourceChanged = ->
   hotswap()

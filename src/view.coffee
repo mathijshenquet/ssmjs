@@ -8,8 +8,6 @@ $("#src").keyup (e) ->
 $(document).delegate '#src', 'keydown', (e) ->
   keyCode = e.keyCode || e.which;
 
-  console.log keyCode
-
   if keyCode == 9
     e.preventDefault()
 

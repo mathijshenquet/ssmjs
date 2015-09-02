@@ -70,7 +70,6 @@ global.Parser = parse: (src) ->
         src = src.slice(match[0].length)
 
       if match = src.match(/^@([\w]*)/)
-        console.log(match)
         src = src.slice(match[0].length)
         line.hint = {label: match[1]}
 
