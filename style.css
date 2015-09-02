@@ -1,0 +1,247 @@
+* {
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+}
+
+#editor{
+  position: absolute;
+  top: 48px;
+  left: 0;
+  bottom: 350px;
+  width: 40%;
+
+  overflow: scroll;
+}
+
+#pc{
+  position: absolute;
+  top: -100px;
+  left: 0;
+  background: red;
+  border-radius: 4px;
+  width: 8px;
+  height: 8px;
+  margin: 6px;
+}
+
+#src{
+  position: absolute;
+  top: 0;
+  left: 20px;
+  right: 20px;
+  bottom: 0;
+  font: 14px monospace;
+  line-height: 20px;
+  border: 0;
+  outline: 0;
+  padding: 8px 0;
+  margin: 0;
+  word-wrap: normal;
+}
+
+.memview{
+  font: 12px monospace;
+}
+
+#mem{
+  position: absolute;
+  top: 48px;
+  right: 0;
+  width: 60%;
+  bottom: 350px;
+}
+
+#regs{
+  position: absolute;
+  bottom: 0;
+  height: 350px;
+  right: 0;
+  width: 60%;
+}
+
+.memview .tbody{
+  overflow-y: scroll;
+  position: absolute;
+  top: 28px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+.memview table{
+  width: 100%;
+  border-collapse: collapse;
+  border-width: 1px;
+}
+
+.memview td, .memview th{
+  margin: 0;
+  padding: 3px 5px;
+  background: transparent;
+}
+
+.memview th{
+  text-align: left;
+  text-decoration: underline;
+  height: 24px;
+}
+
+.memview tr{
+  border-bottom: 1px solid #ccc;
+  background: white;
+  border-left: 3px solid transparent;
+}
+
+@keyframes fade-yellow{
+    0% {  background: #FFFF88;}
+    100% {background: inherit;}
+}
+
+@-moz-keyframes fade-yellow{
+    0% {  background: #FFFF88;}
+    100% {background: inherit;}
+}
+
+@-webkit-keyframes fade-yellow{
+    0% {  background: #FFFF88;}
+    100% {background: inherit;}
+}
+
+@keyframes fade-green{
+    0% {  background: #AAFFAA;}
+    100% {background: inherit;}
+}
+
+@-moz-keyframes fade-green{
+    0% { background: #AAFFAA;}
+    100% { background: inherit;}
+}
+
+@-webkit-keyframes fade-green{
+    0% {  background: #AAFFAA;}
+    100% {background: inherit;}
+}
+
+@keyframes fade-blue{
+    0% {  background: #ADD8E6;}
+    100% {background: inherit;}
+}
+
+@-moz-keyframes fade-blue{
+    0% { background: #ADD8E6;}
+    100% { background: inherit;}
+}
+
+@-webkit-keyframes fade-blue{
+    0% {  background: #ADD8E6;}
+    100% {background: inherit;}
+}
+
+.memview tr.ping-write{
+  animation: fade-yellow 500ms ease-out;
+  -moz-animation: fade-yellow 500ms ease-out;
+  -webkit-animation: fade-yellow 500ms ease-out;
+  border-left: 3px solid #FFD700;
+}
+
+.memview tr.ping-read{
+  animation: fade-blue 500ms ease-out;
+  -moz-animation: fade-blue 500ms ease-out;
+  -webkit-animation: fade-blue 500ms ease-out;
+  border-left: 3px solid #0087BD;
+}
+
+.memview .thead{
+  background: white;
+  z-index: 5;
+  position: relative;
+  box-shadow: 0 6px 10px -8px gray;
+}
+
+#console-in, #console-out{
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 40%;
+
+  margin: 0;
+  border: 0;
+  padding: 4px;
+
+  background: #223;
+  color: white;
+  outline: 0;
+
+  font: 16px monospace;
+}
+
+#console-in{
+  height: 24px;
+}
+
+#console-out{
+  bottom: 24px;
+  height: 326px;
+  overflow-y: scroll;
+}
+
+#console-out hr{
+  padding: 0;
+  margin: 0.5em 0;
+  height: 1px;
+  border: 0;
+  background: #446;
+}
+
+#ctrl{
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 48px;
+  border-bottom: 1px solid gray;
+  padding: 16px 24px;
+}
+
+.mem_addr{
+  width: 90px;
+}
+
+.mem_hex{
+  width: 115px;
+}
+
+.mem_int{
+  width: 115px;
+}
+
+.mem_binary{
+  width: 350px;
+}
+
+.mem_annotation{
+  width: 150px;
+}
+
+.mem_rowspan{
+  border-right: 1px solid #ccc;
+  border-left: 1px solid #ccc;
+}
+
+.mem_mp_offset{
+  width: 25px;
+  font-weight: bold;
+  font-size: 11px;
+  text-align: center;
+  color: rgb(129,139,139);
+}
+
+tr.zombie_mem{
+  opacity: 0.33;
+  border-bottom: 1px solid #eee;
+}
+
+tr.zombie_mem .mem_rowspan{
+  border-right: 1px solid #eee;
+  border-left: 1px solid #eee;
+}
