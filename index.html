@@ -1,0 +1,513 @@
+<style>
+
+* {
+	box-sizing: border-box;
+	-moz-box-sizing: border-box;
+}
+
+#editor{
+	position: absolute;
+	top: 48px;
+	left: 0;
+	bottom: 350px;
+	width: 40%;
+	
+	overflow: scroll;
+}
+
+#pc{
+	position: absolute;
+	top: -100px;
+	left: 0;
+	background: red;
+	border-radius: 4px;
+	width: 8px;
+	height: 8px;
+	margin: 6px;
+}
+
+#src{
+	position: absolute;
+	top: 0;
+	left: 20px;
+	right: 20px;
+	bottom: 0;
+	font: 14px monospace;
+	line-height: 20px;
+	border: 0;
+	outline: 0;
+	padding: 8px 0;
+	margin: 0;
+	word-wrap: normal;
+}
+
+.memview{
+	font: 12px monospace;
+}
+
+#mem{
+	position: absolute;
+	top: 48px;
+	right: 0;
+	width: 60%;
+	bottom: 350px;
+}
+
+#regs{
+	position: absolute;
+	bottom: 0;
+	height: 350px;
+	right: 0;
+	width: 60%;
+}
+
+.memview .tbody{
+	overflow-y: scroll;
+	position: absolute;
+	top: 28px;
+	bottom: 0;
+	left: 0;
+	right: 0;
+}
+
+.memview table{
+	width: 100%;
+	border-collapse: collapse;
+	border-width: 1px;
+}
+
+.memview td, .memview th{
+	margin: 0;
+	padding: 3px 5px;
+	background: transparent;
+}
+
+.memview th{
+	text-align: left;
+	text-decoration: underline;
+	height: 24px;
+}
+
+.memview tr{
+	border-bottom: 1px solid #ccc;
+	background: white;
+	border-left: 3px solid transparent;
+}
+
+@keyframes fade-yellow{
+    0% {  background: #FFFF88;}
+    100% {background: inherit;}
+}
+
+@-moz-keyframes fade-yellow{
+    0% {  background: #FFFF88;}
+    100% {background: inherit;}
+}
+
+@-webkit-keyframes fade-yellow{
+    0% {  background: #FFFF88;}
+    100% {background: inherit;}
+}
+
+@keyframes fade-green{
+    0% {  background: #AAFFAA;}
+    100% {background: inherit;}
+}
+
+@-moz-keyframes fade-green{
+    0% { background: #AAFFAA;}
+    100% { background: inherit;}
+} 
+
+@-webkit-keyframes fade-green{
+    0% {  background: #AAFFAA;}
+    100% {background: inherit;}
+}
+
+@keyframes fade-blue{
+    0% {  background: #ADD8E6;}
+    100% {background: inherit;}
+}
+
+@-moz-keyframes fade-blue{
+    0% { background: #ADD8E6;}
+    100% { background: inherit;}
+}
+
+@-webkit-keyframes fade-blue{
+    0% {  background: #ADD8E6;}
+    100% {background: inherit;}
+}
+
+.memview tr.ping-write{
+  animation: fade-yellow 500ms ease-out;
+  -moz-animation: fade-yellow 500ms ease-out;
+  -webkit-animation: fade-yellow 500ms ease-out;
+  border-left: 3px solid #FFD700;
+}
+
+.memview tr.ping-read{
+  animation: fade-blue 500ms ease-out;
+  -moz-animation: fade-blue 500ms ease-out;
+  -webkit-animation: fade-blue 500ms ease-out;
+  border-left: 3px solid #0087BD;
+}
+
+.memview .thead{
+	background: white;
+	z-index: 5;
+	position: relative;
+	box-shadow: 0 6px 10px -8px gray;
+}
+
+#console-in, #console-out{
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	width: 40%;
+	
+	margin: 0;
+	border: 0;
+	padding: 4px;
+
+	background: #223;
+	color: white;
+	outline: 0;
+	
+	font: 16px monospace;
+}
+
+#console-in{
+	height: 24px;
+}
+
+#console-out{
+	bottom: 24px;
+	height: 326px;
+	overflow-y: scroll;
+}
+
+#console-out hr{
+	padding: 0;
+	margin: 0.5em 0;
+	height: 1px;
+	border: 0;
+	background: #446;
+}
+
+#ctrl{
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 48px;
+	border-bottom: 1px solid gray;
+	padding: 16px 24px;
+}
+
+.mem_addr{
+	width: 90px;
+}
+
+.mem_hex{
+	width: 115px;
+}
+
+.mem_int{
+	width: 115px;
+}
+
+.mem_binary{
+	width: 350px;
+}
+
+.mem_annotation{
+	width: 150px;
+}
+
+.mem_rowspan{
+	border-right: 1px solid #ccc;
+	border-left: 1px solid #ccc;
+}
+
+.mem_mp_offset{
+	width: 25px;
+	font-weight: bold;
+	font-size: 11px;
+	text-align: center;
+	color: rgb(129,139,139);
+}
+
+tr.zombie_mem{
+	opacity: 0.33;
+	border-bottom: 1px solid #eee;
+}
+
+tr.zombie_mem .mem_rowspan{
+	border-right: 1px solid #eee;
+	border-left: 1px solid #eee;
+}
+
+</style>
+
+<div id="ctrl">
+
+</div>
+
+<div id="editor">
+<div id="pc"></div>
+	<pre id="src" autofocus contenteditable="plaintext-only">
+ldc 5 ; a
+ldc 12 ; b
+bsr sumsquare
+ajs -2 ; verwijder parameters
+lds 5 ; resultaat op de stack
+bra next
+
+sumsquare:
+	link 1 ; 1 locale variabele
+	ldl -3 ; a
+	ldl -3 ; a
+	mul ; a*a
+	ldl -2 ; b
+	ldl -2 ; b
+	mul ; b*b
+	add ; a*a + b*b
+	stl 1 ; x
+	unlink 1
+	ret
+
+
+
+
+
+
+
+
+
+next:
+
+ldc 1 ; {label: "a"}
+ldc 2 ; {label: "b"}
+ldc 3 ; {label: "c"}
+ldc 4 ; {label: "d"}
+
+bsr complex_multiply
+ldr RR
+ldr 5
+
+
+ldc -1 ; {label: "a"}
+ldc 1 ; {label: "b"}
+bsr complex_square
+
+ldr RR
+ldr 5
+
+ldc 3 ; {label: "a"}
+ldc 4 ; {label: "b"}
+bsr pyth
+ldr RR ; {label: "c"}
+annote SP -2 0 blue "pythagoras a^2 + b^2 = c^2"
+
+ldc 11; {label: "root"}
+bsr sq 
+ldr 4 ; {label: "square"}
+bsr sqrt
+ldr 4
+bra exit
+
+complex_square:
+  link
+  ldl -3
+  ldl -3
+  mul
+  ldl -2
+  ldl -2
+  mul
+  sub
+
+  str RR
+
+  ldl -3
+  ldl -2
+  mul
+  ldc 2
+  mul
+  
+  str 5
+
+  unlink
+  ret
+
+complex_multiply:
+  link
+  ldl -5
+  ldl -3
+  mul
+  ldl -4
+  ldl -2
+  mul
+  sub
+
+  str RR
+
+  ldl -5
+  ldl -2
+  mul
+  ldl -4
+  ldl -3
+  mul
+  add
+
+  str 5
+
+  unlink
+  ret
+
+pyth:
+  lds -2 ; {label: "a"}
+  bsr sq
+  ajs -1
+  ldr 4
+  
+  lds -2 ; {label: "b"}
+  bsr sq
+  ajs -1
+  ldr 4
+  
+  add
+  bsr sqrt
+  ajs -1
+  ret
+
+sqrt: 
+  link 0
+  lds -2 ; {label: "root"} take the number to sqrt from the stack
+  ldc 16 ; {label: "i"} we will take a maximum of 16 itterations of newtons method
+  ldl 1 ; {label: "p"}
+
+sqrt_loop: 
+  lds 0 ; take current trice
+  lds 0
+  mul   ; multiply together
+  ldl 1 ; now take the sqrt we want
+  add   ; add this and the square together
+  lds -1 
+  ldc 2 
+  mul
+  div
+
+  lds -1 ; {label: "p_old"}
+  lds -1 ; {label: "p_new"}
+  eq
+  brt sqrt_exit
+  sts -1 ; {label: "p"}
+
+  ldl 2 ; Load iter count
+  ldc 1 ; 1
+  sub   ; decrement iter count
+  stl 2 ; {label: "i"} store iter count
+  ajs 1 ;
+  ldc 0
+  eq
+  brf sqrt_loop ; jump back if
+
+sqrt_exit:
+  str 4 ; {label: ""}
+  unlink
+  ret
+
+sq:
+  lds -1
+  lds 0
+  mul
+  str 4
+  ret
+
+ldc 12 ; {label: "n"}
+bsr factorial
+ldr RR
+halt
+
+factorial:
+  lds -1
+  lds 0
+
+factorial_loop:
+  lds -1
+  ldc 1
+  sub
+
+  lds 0
+  brt factorial_exit
+  
+  lds 0
+  sts -3 ; {label: "n"}
+
+  mul ; {label: "f_n"}
+  
+  bra factorial_loop
+
+factorial_exit:
+  ajs -1
+  str RR
+  ajs -1
+  ret
+
+exit: halt
+	
+	
+	
+	</pre>
+</div>
+
+<pre id="console-out"></pre>
+<input id="console-in"></input>
+
+<div id="mem" class="memview">
+	<table class="thead">
+		<thead>
+			<tr>
+				<th>adress</th>
+				<th>hex</th>
+				<th>int</th>
+				<th>float</th>
+				<th>comment</th>
+				<th>char (UCS-2)</th>
+				<th>binary</th>
+			</tr>
+		</thead>
+	</table>
+	<div class="tbody">
+		<table>
+	    <tbody></tbody>
+		</table>
+	</div>
+</div>
+
+<div id="regs" class="memview">
+	<table class="thead">
+		<thead>
+			<tr>
+				<th>registry</th>
+				<th>hex</th>
+				<th>int</th>
+				<th>float</th>
+				<th>char (UCS-2)</th>
+				<th>binary</th>
+			</tr>
+		</thead>
+	</table>
+	<div class="tbody">
+		<table>
+	    <tbody></tbody>
+		</table>
+	</div>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script src="cpu.js"></script>
+<script src="parser.js"></script>
+<script src="view.js"></script>
+<script src="main.js"></script>
