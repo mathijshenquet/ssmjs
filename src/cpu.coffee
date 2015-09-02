@@ -9,9 +9,9 @@ binOp = (op) ->
     label: (newLabel) ->
       b = @popCmt()
       a = @popCmt()
-      
+
       value = fn(a.value, b.value)
-      label = if a.label? && b.label? && newLabel == undefined then lbl(a.label, b.label) else undefined
+      label = if a.label? && b.label? && (not newLabel?) then lbl(a.label, b.label) else undefined
 
       @push value, (newLabel ? label)
 
@@ -25,12 +25,12 @@ binPred = (op) ->
   fn = new Function("a, b", "return (a #{op} b) ? 1 : -1")
   lbl = new Function("a, b", "return '('+a+' #{op} '+b+')';")
   {
-    label: ->
+    label: (newLabel) ->
       b = @popCmt()
       a = @popCmt()
-      
+
       value = fn(a.value, b.value)
-      label = if a.label? && b.label? && newLabel == undefined then lbl(a.label, b.label) else undefined
+      label = if a.label? && b.label? && (not newLabel?) then lbl(a.label, b.label) else undefined
 
       @push value, (newLabel ? label)
 
@@ -46,27 +46,27 @@ global.SSMInstructionSet = {
   mul: binOp "*"
   div: binOp "/"
   mod: binOp "%"
-  
+
   neg: {
     normal: -> @push(-@pop())
-    label: (newLabel) -> 
+    label: (newLabel) ->
       {value, label} = @popCmt();
       @push(-value, "-(#{newLabel ? label})")
   }
-  
+
   eq: binPred "=="
   ne: binPred "!="
   lt: binPred "<"
   gt: binPred ">"
   le: binPred "<="
   ge: binPred ">="
-  
+
   or: binOp "|"
   xor: binOp "^"
-  
-  not: 
+
+  not:
     normal: -> @push(@pop() ^ 0xFFFF)
-    label: (newLabel) -> 
+    label: (newLabel) ->
       {value, label}
       @push(value ^ 0xFFFF, "!(#{newLabel ? a.label})")
 
@@ -83,40 +83,40 @@ global.SSMInstructionSet = {
     label: (regHandle, newLabel) ->
       id = @regId(regHandle)
       @push(@reg.int[id], (newLabel ? @reg.label[id]))
-      @reg.read[id] = true; 
-  str: 
+      @reg.read[id] = true;
+  str:
     normal: (regHandle) ->
       @reg.int[@regId(regHandle)] = @pop()
     label: (regHandle, newLabel) ->
       {value, label} = @popCmt()
       @set @regId(regHandle), value, (newLabel ? label)
 
-  lds: 
+  lds:
     normal: (n) ->
-      @mem.read[@r[SP] + n] = true; 
+      @mem.read[@r[SP] + n] = true;
     label: (n, newLabel) ->
       addr = @r[SP] + n
       @push(@read(addr), (newLabel ? @mem.label[addr]))
-      @mem.read[addr] = true; 
-  sts: 
-    normal: (n) -> 
+      @mem.read[addr] = true;
+  sts:
+    normal: (n) ->
       value = @pop()
       @write (@r[SP] + (n+1)), value
     label: (n, newLabel) ->
       {value, label} = @popCmt()
       @write (@r[SP] + (n+1)), value, (newLabel ? label)
 
-  ldl: 
+  ldl:
     normal: (n) ->
       @push(@read(@r[MP] + n))
     label: (n, newLabel) ->
       @push(@read(@r[MP] + n), (newLabel ? @mem.label[@r[MP] + n]))
-      @mem.read[@r[MP] + n] = true; 
+      @mem.read[@r[MP] + n] = true;
   stl:
     normal: (n) ->
       value = @pop()
       @write (@r[MP] + n), value
-    label: (n, newLabel) -> 
+    label: (n, newLabel) ->
       {value, label} = @popCmt()
       @write (@r[MP] + n), value, (newLabel ? label)
 
@@ -125,7 +125,7 @@ global.SSMInstructionSet = {
   bra: (addr) -> @jump(addr)
   bsr: (addr) -> @push(@r[PC], "PC return"); @jump(addr)
 
-  link: (n) -> 
+  link: (n) ->
     @push(@r[MP], "MP return");
     @r[MP] = @r[SP];
     for [0...n]
@@ -136,7 +136,7 @@ global.SSMInstructionSet = {
     @r[MP] = @pop()
 
   ret: (addr) -> @r[PC] = @pop();
-  
+
   ajs: (n) -> @r[SP] += n
 
   halt: -> @halted = true
@@ -147,7 +147,7 @@ global.SSMInstructionSet = {
     console.log(@r[reg], low, high, color, text)
     for i in [(@r[reg]+low)..(@r[reg]+high)]
       console.log(i)
-      @mem.annote[i] = {color, text} 
+      @mem.annote[i] = {color, text}
 
   nop: ->
 
@@ -191,7 +191,7 @@ class MemoryBank
     @float = @f32
 
 class global.SimpleCPU
-  constructor: (@instructions) -> 
+  constructor: (@instructions) ->
     @code = []
     @labels = true
     @reset()
@@ -231,10 +231,10 @@ class global.SimpleCPU
     @r[PC] = @labels[addr];
     @lineNr = @code[@r[PC]]?.lineNr ? false
 
-  pop: -> 
+  pop: ->
     @read(@r[SP]--)
 
-  popCmt: -> 
+  popCmt: ->
     {value: @read(@r[SP]), label: @mem.label[@r[SP]--]}
 
   push: (value, label) ->
@@ -306,7 +306,7 @@ class global.SimpleCPU
       throw new Error("Unknown opcode #{instruction.opcode}")
 
     tmp = @instructions[instruction.opcode]
-    
+
     if @labels
       args = [].concat(instruction.args, instruction.hint.label)
       (tmp.label ? tmp).apply(this, args)

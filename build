@@ -1,0 +1,2 @@
+#!/bin/sh
+coffee -w -m -o ./js src/*.coffee

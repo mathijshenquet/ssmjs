@@ -11,7 +11,7 @@
 	left: 0;
 	bottom: 350px;
 	width: 40%;
-	
+
 	overflow: scroll;
 }
 
@@ -117,7 +117,7 @@
 @-moz-keyframes fade-green{
     0% { background: #AAFFAA;}
     100% { background: inherit;}
-} 
+}
 
 @-webkit-keyframes fade-green{
     0% {  background: #AAFFAA;}
@@ -165,7 +165,7 @@
 	bottom: 0;
 	left: 0;
 	width: 40%;
-	
+
 	margin: 0;
 	border: 0;
 	padding: 4px;
@@ -173,7 +173,7 @@
 	background: #223;
 	color: white;
 	outline: 0;
-	
+
 	font: 16px monospace;
 }
 
@@ -311,7 +311,7 @@ ldr RR ; {label: "c"}
 annote SP -2 0 blue "pythagoras a^2 + b^2 = c^2"
 
 ldc 11; {label: "root"}
-bsr sq 
+bsr sq
 ldr 4 ; {label: "square"}
 bsr sqrt
 ldr 4
@@ -334,7 +334,7 @@ complex_square:
   mul
   ldc 2
   mul
-  
+
   str 5
 
   unlink
@@ -370,31 +370,31 @@ pyth:
   bsr sq
   ajs -1
   ldr 4
-  
+
   lds -2 ; {label: "b"}
   bsr sq
   ajs -1
   ldr 4
-  
+
   add
   bsr sqrt
   ajs -1
   ret
 
-sqrt: 
+sqrt:
   link 0
   lds -2 ; {label: "root"} take the number to sqrt from the stack
   ldc 16 ; {label: "i"} we will take a maximum of 16 itterations of newtons method
   ldl 1 ; {label: "p"}
 
-sqrt_loop: 
+sqrt_loop:
   lds 0 ; take current trice
   lds 0
   mul   ; multiply together
   ldl 1 ; now take the sqrt we want
   add   ; add this and the square together
-  lds -1 
-  ldc 2 
+  lds -1
+  ldc 2
   mul
   div
 
@@ -441,12 +441,12 @@ factorial_loop:
 
   lds 0
   brt factorial_exit
-  
+
   lds 0
   sts -3 ; {label: "n"}
 
   mul ; {label: "f_n"}
-  
+
   bra factorial_loop
 
 factorial_exit:
@@ -456,9 +456,9 @@ factorial_exit:
   ret
 
 exit: halt
-	
-	
-	
+
+
+
 	</pre>
 </div>
 
@@ -507,7 +507,7 @@ exit: halt
 </div>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-<script src="cpu.js"></script>
-<script src="parser.js"></script>
-<script src="view.js"></script>
-<script src="main.js"></script>
+<script src="js/cpu.js"></script>
+<script src="js/parser.js"></script>
+<script src="js/view.js"></script>
+<script src="js/main.js"></script>
