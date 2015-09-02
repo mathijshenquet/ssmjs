@@ -9,6 +9,7 @@
   left: 0;
   bottom: 0;
   width: 40%;
+  tab-size: 4;
 
   overflow: scroll;
 }
@@ -30,7 +31,7 @@
   left: 20px;
   right: 20px;
   bottom: 0;
-  font: 14px monospace;
+  font: 12px monospace;
   line-height: 20px;
   border: 0;
   outline: 0;

@@ -2,16 +2,33 @@
 if not global?
   global = window
 
-$("#console-out").click ->
-  $("#console-in").focus()
-  return false
-
-$("#console-in").keypress (e) ->
-  if e.keyCode == 13
-    commandRun($(this).val());
-
 $("#src").keyup (e) ->
   setTimeout View.sourceChanged, 50
+
+$(document).delegate '#src', 'keydown', (e) ->
+  keyCode = e.keyCode || e.which;
+
+  console.log keyCode
+
+  if keyCode == 9
+    e.preventDefault()
+
+    if window.getSelection
+      sel = window.getSelection()
+
+      if sel.getRangeAt && sel.rangeCount
+        range = sel.getRangeAt(0)
+        range.deleteContents()
+        node = document.createTextNode("\t")
+        range.insertNode(node)
+        sel.collapse(node, 1)
+
+    else if document.selection && document.selection.createRange
+      range = document.selection.createRange()
+      range.pasteHTML("\t")
+      range.move("character", 1)
+      range.select()
+
 
 String::padl = (str, len) ->
   padding = Array(((len/str.length)|0) + 1).join(str)
