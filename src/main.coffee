@@ -14,10 +14,12 @@ reset = ->
   View.update(cpu)
 
 step = ->
-  console.log("step")
-
   hotswap()
   cpu.step()
+  View.update(cpu)
+
+undo = ->
+  cpu.undo()
   View.update(cpu)
 
 run = ->
@@ -27,7 +29,7 @@ run = ->
 
 View.addButton "rewind", reset
 
-View.addButton "step-back", ->
+View.addButton "step-back", undo
 
 View.addButton "step", step
 

@@ -5,40 +5,26 @@ if not global?
 binOp = (op) ->
   fn = new Function("a, b", "return a #{op} b")
   lbl = new Function("a, b", "return '('+a+' #{op} '+b+')';")
-  {
-    label: (newLabel) ->
-      b = @popCmt()
-      a = @popCmt()
+  (newLabel) ->
+    b = @pop()
+    a = @pop()
 
-      value = fn(a.value, b.value)
-      label = if a.label? && b.label? && (not newLabel?) then lbl(a.label, b.label) else undefined
+    value = fn(a.value, b.value)
+    label = if a.label? && b.label? && (not newLabel?) then lbl(a.label, b.label) else undefined
 
-      @push value, (newLabel ? label)
-
-    normal: ->
-      b = @pop()
-      a = @pop()
-      @push fn(a, b)
-  }
+    @push value, (newLabel ? label)
 
 binPred = (op) ->
   fn = new Function("a, b", "return (a #{op} b) ? 1 : -1")
   lbl = new Function("a, b", "return '('+a+' #{op} '+b+')';")
-  {
-    label: (newLabel) ->
-      b = @popCmt()
-      a = @popCmt()
+  (newLabel) ->
+    b = @pop()
+    a = @pop()
 
-      value = fn(a.value, b.value)
-      label = if a.label? && b.label? && (not newLabel?) then lbl(a.label, b.label) else undefined
+    value = fn(a.value, b.value)
+    label = if a.label? && b.label? && (not newLabel?) then lbl(a.label, b.label) else undefined
 
-      @push value, (newLabel ? label)
-
-    normal: ->
-      b = @pop()
-      a = @pop()
-      @push fn(a, b)
-  }
+    @push value, (newLabel ? label)
 
 global.SSMInstructionSet = {
   add: binOp "+"
@@ -47,12 +33,9 @@ global.SSMInstructionSet = {
   div: binOp "/"
   mod: binOp "%"
 
-  neg: {
-    normal: -> @push(-@pop())
-    label: (newLabel) ->
-      {value, label} = @popCmt();
-      @push(-value, "-(#{newLabel ? label})")
-  }
+  neg: (newLabel) ->
+    {value, label} = @pop();
+    @push(-value, "-(#{newLabel ? label})")
 
   eq: binPred "=="
   ne: binPred "!="
@@ -64,80 +47,55 @@ global.SSMInstructionSet = {
   or: binOp "|"
   xor: binOp "^"
 
-  not:
-    normal: -> @push(@pop() ^ 0xFFFF)
-    label: (newLabel) ->
-      {value, label}
-      @push(value ^ 0xFFFF, "!(#{newLabel ? a.label})")
+  not: (newLabel) ->
+    {value, label} = @pop()
+    @push(value ^ 0xFFFF, "!(#{newLabel ? a.label})")
 
-  ldc:
-    normal: (a) ->
-      @push(a)
-    label: (a, newLabel) ->
-      @push(a, newLabel ? a)
+  ldc: (a, label) ->
+    @push(a, label ? a)
 
-  ldr:
-    normal: (regHandle) ->
-      id = @regId(regHandle)
-      @push(@reg.int[id])
-    label: (regHandle, newLabel) ->
-      id = @regId(regHandle)
-      @push(@reg.int[id], (newLabel ? @reg.label[id]))
-      @reg.read[id] = true;
-  str:
-    normal: (regHandle) ->
-      @reg.int[@regId(regHandle)] = @pop()
-    label: (regHandle, newLabel) ->
-      {value, label} = @popCmt()
-      @set @regId(regHandle), value, (newLabel ? label)
+  ldr: (regHandle, label) ->
+    id = @regId(regHandle)
+    @push(@get(id), (label ? @get(id, 'label')))
 
-  lds:
-    normal: (n) ->
-      @mem.read[@r[SP] + n] = true;
-    label: (n, newLabel) ->
-      addr = @r[SP] + n
-      @push(@read(addr), (newLabel ? @mem.label[addr]))
-      @mem.read[addr] = true;
-  sts:
-    normal: (n) ->
-      value = @pop()
-      @write (@r[SP] + (n+1)), value
-    label: (n, newLabel) ->
-      {value, label} = @popCmt()
-      @write (@r[SP] + (n+1)), value, (newLabel ? label)
+  str: (regHandle, newLabel) ->
+    {value, label} = @pop()
+    @set @regId(regHandle), value, (newLabel ? label)
 
-  ldl:
-    normal: (n) ->
-      @push(@read(@r[MP] + n))
-    label: (n, newLabel) ->
-      @push(@read(@r[MP] + n), (newLabel ? @mem.label[@r[MP] + n]))
-      @mem.read[@r[MP] + n] = true;
-  stl:
-    normal: (n) ->
-      value = @pop()
-      @write (@r[MP] + n), value
-    label: (n, newLabel) ->
-      {value, label} = @popCmt()
-      @write (@r[MP] + n), value, (newLabel ? label)
+  lds: (n, label) ->
+    addr = @r[SP] + n
+    @push @read(addr), (label ? @read(addr, 'label'))
+    @mem.read[addr] = true;
 
-  brt: (addr) -> @jump(addr) if @pop() == 1
-  brf: (addr) -> @jump(addr) if @pop() != 1
+  sts: (n, newLabel) ->
+    {value, label} = @pop()
+    @write (@get(SP) + (n+1)), value, (newLabel ? label)
+
+  ldl: (n, newLabel) ->
+      @push @read(@get(MP) + n), (newLabel ? @read(@get(MP) + n, 'label'))
+
+  stl: (n, newLabel) ->
+      {value, label} = @pop()
+      @write (@get(MP) + n), value, (newLabel ? label)
+
+  brt: (addr) -> @jump(addr) if @pop().value == 1
+  brf: (addr) -> @jump(addr) if @pop().value != 1
   bra: (addr) -> @jump(addr)
-  bsr: (addr) -> @push(@r[PC], "PC return"); @jump(addr)
+  bsr: (addr) -> @push(@get(PC), "PC return"); @jump(addr)
 
   link: (n) ->
-    @push(@r[MP], "MP return");
-    @r[MP] = @r[SP];
+    @push(@get(MP), "MP return");
+    @set(MP, @get(SP))
     for [0...n]
       @push(0)
 
   unlink: () ->
-    @r[SP] = @r[MP]
-    @r[MP] = @pop()
+    @set(SP, @get(MP))
+    @set(MP, @pop().value)
 
-  ret: (addr) -> @r[PC] = @pop();
+  ret: (addr) -> @set(PC, @pop().value);
 
-  ajs: (n) -> @r[SP] += n
+  ajs: (n) -> @set(SP, @get(SP) + n)
 
   halt: -> @halted = true
 
@@ -193,10 +151,12 @@ class MemoryBank
 class global.SimpleCPU
   constructor: (@instructions) ->
     @code = []
-    @labels = true
+    @labels = {}
     @reset()
 
   reset: ->
+    @history = []
+
     @memSize = 1024
     @memSeen = -1
 
@@ -214,39 +174,96 @@ class global.SimpleCPU
 
     @halted = false
 
-    @setLineNr()
-
-  setLineNr: ->
     @lineNr = @code[@r[PC]]?.lineNr ? false
 
   write: (addr, value, label) ->
-    @mem.int[addr]   = value;
-    @mem.label[addr] = label;
-    @mem.written[addr] = true;
+    oldValue = @mem.int[addr];
+    oldLabel = @mem.label[addr];
+    oldWritten = @mem.written[addr];
 
-  read: (addr) ->
-    @mem.int[addr]
+    @stateApply
+      do: ->
+        @mem.int[addr] = value;
+        @mem.written[addr] = true;
 
-  jump: (addr) ->
-    @r[PC] = @labels[addr];
-    @lineNr = @code[@r[PC]]?.lineNr ? false
+        if label?
+          @mem.label[addr] = label;
 
-  pop: ->
-    @read(@r[SP]--)
+      undo: ->
+        @mem.int[addr] = oldValue
+        @mem.written[addr] = oldWritten;
+        @mem.label[addr] = oldLabel;
 
-  popCmt: ->
-    {value: @read(@r[SP]), label: @mem.label[@r[SP]--]}
+  read: (addr, type) -> @stateApply
+    do: ->
+      @mem.read[addr] = true
+      @mem[type ? 'int'][addr]
 
-  push: (value, label) ->
-    @write(++@r[SP], value, label)
-    @memSeen = Math.max(@memSeen, @r[SP])
-
-  peek: -> @read(@r[SP])
+    undo: ->
 
   set: (n, value, label) ->
-    @reg.int[n] = value;
-    @reg.label[n] = label;
-    @reg.written[n] = true
+    oldValue = @reg.int[n];
+    oldLabel = @reg.label[n];
+    oldWritten = @reg.written[n];
+
+    @stateApply
+      do: ->
+        @reg.int[n] = value
+        @reg.written[n] = true
+
+        if label?
+          @reg.label[n] = label
+
+      undo: ->
+        @reg.int[n] = oldValue
+        @reg.written[n] = oldWritten;
+        @reg.label[n] = oldLabel;
+
+  get: (n, type) -> @stateApply
+    do: ->
+      @reg.read[n] = true
+      @reg[type ? 'int'][n]
+
+    undo: ->
+
+  jump: (addr) ->
+    oldPC = @r[PC];
+    oldLineNr = @lineNr
+
+    @stateApply
+      do: ->
+        @r[PC] = @labels[addr];
+        @lineNr = @code[@r[PC]]?.lineNr ? false
+
+      undo: ->
+        @r[PC] = oldPC;
+        @lineNr = oldLineNr;
+
+  pop: ->
+    @stateApply
+      do: ->
+        {value: @read(@r[SP]), label: @mem.label[@r[SP]--]}
+
+      undo: ->
+        @r[SP]++
+
+  push: (value, label) ->
+    oldMemSeen = @memSeen
+
+    @stateApply
+      do: ->
+        @write(++@r[SP], value, label)
+        @memSeen = Math.max(@memSeen, @r[SP])
+
+      undo: ->
+        @r[SP]--
+        @memSeen = oldMemSeen
+
+
+  peek: -> @stateApply
+    do: ->
+      @read(@r[SP])
+    undo: ->
 
   regId: (handle) -> {
     pc: PC
@@ -266,7 +283,9 @@ class global.SimpleCPU
 
     return @r[id]
 
-  get: (n) -> @r[n]
+  stateApply: (cmd) ->
+    @stepObject.stateActions.push(cmd)
+    cmd.do.call(this)
 
   load: (@code) ->
     @lineNr = @code[@r[PC]]?.lineNr
@@ -291,27 +310,38 @@ class global.SimpleCPU
     if @halted
       return false
 
+    @stepObject = {
+      oldPC: @r[PC],
+      stateActions: []
+    }
+
     instruction = @code[@r[PC]++]
     if not instruction?
       @lineNr = false
       @r[PC]--;
       return false;
 
+
     @exec(instruction)
+    @history.push(@stepObject)
+
     @lineNr = @code[@r[PC]]?.lineNr
     return true;
+
+  undo: ->
+    if not stepObject = @history.pop()
+      return;
+
+    while action = stepObject.stateActions.pop()
+      action.undo.call(this)
+    @r[PC] = stepObject.oldPC;
+    @lineNr = @code[@r[PC]]?.lineNr
 
   exec: (instruction) ->
     unless @instructions[instruction.opcode]?
       throw new Error("Unknown opcode #{instruction.opcode}")
 
-    tmp = @instructions[instruction.opcode]
-
-    if @labels
-      args = [].concat(instruction.args, instruction.hint.label)
-      (tmp.label ? tmp).apply(this, args)
-
-    else
-      (tmp.normal ? tmp).apply(this, instruction.args)
+    args = [].concat(instruction.args, instruction.hint.label)
+    @instructions[instruction.opcode].apply(this, args)
 
     return;
