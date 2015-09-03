@@ -49,7 +49,7 @@ Number::showBinary = -> (if this.valueOf() == 0 then "" else @toString(2)).padl(
 
 global.View =
   addButton: (name, fn) ->
-    $btn = $("<button>#{name}</button>")
+    $btn = $("<button class=ctrl_btn id=btn_#{name}><img src='./static/img/#{name}.png' /></button>")
     $("#ctrl").append($btn)
     $btn.click fn
 

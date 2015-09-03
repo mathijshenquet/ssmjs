@@ -228,6 +228,19 @@
   font-family: sans-serif;
 }
 
+.ctrl_btn{
+  margin: 0 2px;
+  border-radius: 13px;
+  background: white;
+  border: 1px solid black;
+}
+
+.ctrl_btn img{
+  display: block;
+  height: 24px;
+  padding: 6px 3px;
+}
+
 .mem_addr{
   width: 90px;
 }

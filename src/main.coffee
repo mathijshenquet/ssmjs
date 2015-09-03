@@ -25,11 +25,13 @@ run = ->
   cpu.run()
   View.update(cpu)
 
-View.addButton "reset", reset
+View.addButton "rewind", reset
+
+View.addButton "step-back", ->
 
 View.addButton "step", step
 
-View.addButton "run", run
+View.addButton "fast-forward", run
 
 $(document).bind('keydown', 'ctrl+]', step);
 
