@@ -72,8 +72,8 @@ global.View =
 
   update: (cpu) ->
     @showPC(cpu.lineNr)
-    @showMem(cpu, ["hex", "int", "label", "annotation", "binary"])
-    @showRegs(cpu, ["hex", "int", "label", "annotation", "binary"])
+    @showMem(cpu, ["hex", "int", "annotation", "binary"])
+    @showRegs(cpu, ["hex", "int", "annotation", "binary"])
 
   showChar: (cp) ->
     if cp < 32
@@ -92,7 +92,7 @@ global.View =
     int: (bank, addr) -> bank.int[addr]
     float: (bank, addr) -> bank.float[addr]
     label: (bank, addr) -> bank.label[addr] ? ""
-    annotation: (bank, addr) -> "<span style=color:#{bank.annote[addr]?.color ? "inherit"};>#{bank.annote[addr]?.text ? ""}</span>"
+    annotation: (bank, addr) -> "<span style=color:#{bank.annote[addr]?.color ? "inherit"};>#{bank.annote[addr]?.text ? bank.label[addr] ? ""}</span>"
     char: (bank, addr) -> "#{@showChar(bank.u16[addr*2 + 1]) ? ""}#{@showChar(bank.u16[addr*2]) ? "\\0"}"
 
   memoryBankRow: (bank, addr, rows, reg_name) ->
