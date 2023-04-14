@@ -1,0 +1,13 @@
+{
+  "version": 3,
+  "file": "main.js",
+  "sourceRoot": "..\\",
+  "sources": [
+    "src\\main.coffee"
+  ],
+  "names": [],
+  "mappings": ";AACC;AAAA,MAAA,GAAA,EAAA,MAAA,EAAA,OAAA,EAAA,KAAA,EAAA,GAAA,EAAA,IAAA,EAAA;;EAAA,IAAO,gDAAP;IACE,MAAA,GAAS,OADX;;;EAIC,GAAA,GAAM,IAAI,SAAJ,CAAc,iBAAd;;EAEN,OAAA,GAAU,QAAA,CAAA,CAAA;AACX,QAAA;IAAE,IAAA,GAAO,MAAM,CAAC,KAAP,CAAa,IAAI,CAAC,MAAL,CAAA,CAAb;WACP,GAAG,CAAC,IAAJ,CAAS,IAAT;EAFS;;EAIV,KAAA,GAAQ,QAAA,CAAA,CAAA;IACP,GAAG,CAAC,KAAJ,CAAA;WACA,IAAI,CAAC,MAAL,CAAY,GAAZ;EAFO;;EAIR,IAAA,GAAO,QAAA,CAAA,CAAA;IACN,OAAA,CAAA;IACA,GAAG,CAAC,IAAJ,CAAA;WACA,IAAI,CAAC,MAAL,CAAY,GAAZ;EAHM;;EAKP,IAAA,GAAO,QAAA,CAAA,CAAA;IACN,GAAG,CAAC,IAAJ,CAAA;WACA,IAAI,CAAC,MAAL,CAAY,GAAZ;EAFM;;EAIP,GAAA,GAAM,QAAA,CAAA,CAAA;IACL,OAAA,CAAA;IACA,GAAG,CAAC,GAAJ,CAAA;WACA,IAAI,CAAC,MAAL,CAAY,GAAZ;EAHK;;EAKN,IAAI,CAAC,SAAL,CAAe,QAAf,EAAyB,KAAzB;;EAEA,IAAI,CAAC,SAAL,CAAe,WAAf,EAA4B,IAA5B;;EAEA,IAAI,CAAC,SAAL,CAAe,MAAf,EAAuB,IAAvB;;EAEA,IAAI,CAAC,SAAL,CAAe,cAAf,EAA+B,GAA/B;;EAEA,CAAA,CAAE,QAAF,CAAW,CAAC,IAAZ,CAAiB,SAAjB,EAA4B,QAA5B,EAAsC,IAAtC;;EAEA,IAAI,CAAC,aAAL,GAAqB,QAAA,CAAA,CAAA;IACpB,OAAA,CAAA;WACA,IAAI,CAAC,MAAL,CAAY,GAAZ;EAFoB;;EAIrB,IAAI,CAAC,aAAL,CAAA;;EAEA,MAAM,CAAC,CAAP,GAAW,CAAC,GAAD;AA5CZ",
+  "sourcesContent": [
+    "\r\nif not global?\r\n  global = window\r\n\r\n\r\ncpu = new SimpleCPU(SSMInstructionSet)\r\n\r\nhotswap = ->\r\n  code = Parser.parse(View.getSrc())\r\n  cpu.load(code)\r\n\r\nreset = ->\r\n  cpu.reset()\r\n  View.update(cpu)\r\n\r\nstep = ->\r\n  hotswap()\r\n  cpu.step()\r\n  View.update(cpu)\r\n\r\nundo = ->\r\n  cpu.undo()\r\n  View.update(cpu)\r\n\r\nrun = ->\r\n  hotswap()\r\n  cpu.run()\r\n  View.update(cpu)\r\n\r\nView.addButton \"rewind\", reset\r\n\r\nView.addButton \"step-back\", undo\r\n\r\nView.addButton \"step\", step\r\n\r\nView.addButton \"fast-forward\", run\r\n\r\n$(document).bind('keydown', 'ctrl+]', step);\r\n\r\nView.sourceChanged = ->\r\n  hotswap()\r\n  View.update(cpu)\r\n\r\nView.sourceChanged()\r\n\r\nglobal._ = {cpu}\r\n"
+  ]
+}

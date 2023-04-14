@@ -1,0 +1,18 @@
+{
+  "name": "ssm",
+  "version": "1.0.0",
+  "description": "Simple Stack Machine implementation (cs.uu.nl)",
+  "scripts": {
+    "build": "coffee -w -m -o js/ src/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mathijshenquet/ssm.git"
+  },
+  "keywords": [],
+  "author": "Mathijs Henquet",
+  "homepage": "https://github.com/mathijshenquet/ssm",
+  "dependencies": {
+    "coffeescript": "^2.7.0"
+  }
+}
